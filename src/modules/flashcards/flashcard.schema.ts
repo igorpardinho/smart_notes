@@ -6,4 +6,7 @@ export const createFlashCardSchema = z.object({
   tags: z.array(z.string()).optional(),
 });
 
+export const generateSchema = z.object({
+  content: z.string().min(20, "no minimo 20 caracteres"),
+});
 export type CreateFlashCardDto = z.infer<typeof createFlashCardSchema>;

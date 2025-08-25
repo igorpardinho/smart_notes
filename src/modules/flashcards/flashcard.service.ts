@@ -1,8 +1,49 @@
+import OpenAI from "openai";
 import { FlashCard, IFlashCard } from "./flashcard.model";
 import { CreateFlashCardDto } from "./flashcard.schema";
 
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
 export const findAll = async (): Promise<IFlashCard[]> => {
   return await FlashCard.find().sort({ createdAt: -1 });
+};
+
+export const generateWithAI = async (content: string): Promise<IFlashCard> => {
+  const prompt = `
+    Gere um flashcard a partir do seguinte conteúdo.
+Retorne no formato JSON:
+{ "question": "...", "answer": "..." }
+
+Conteúdo:
+"""${content}"""
+    `;
+
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o-mini",
+    messages: [{ role: "user", content: prompt }],
+    temperature: 0.7,
+  });
+
+  const text = response.choices[0].message?.content;
+
+  let aiData: Partial<CreateFlashCardDto> = { question: "", answer: "" };
+
+  try {
+    const match = text?.match(/\{[\s\S]*\}/);
+    if (match) {
+      aiData = JSON.parse(match[0]);
+    } else {
+      console.warn("Resposta da IA não contém JSON:", text);
+    }
+  } catch (err) {
+    console.warn("Erro ao parsear JSON da IA:", err, text);
+  }
+
+  if (!aiData.question || !aiData.answer) {
+    throw new Error("IA não retornou flashcard válido");
+  }
+
+  return await FlashCard.create(aiData);
 };
 
 export const createFlashCard = async (

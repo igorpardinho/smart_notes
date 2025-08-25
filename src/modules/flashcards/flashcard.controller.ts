@@ -1,6 +1,17 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import * as flashService from "./flashcard.service";
-import { createFlashCardSchema } from "./flashcard.schema";
+import { createFlashCardSchema, generateSchema } from "./flashcard.schema";
+
+
+export const generate = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { content } = generateSchema.parse(req.body);
+    const flashCard = await flashService.generateWithAI(content);
+    res.status(201).json(flashCard);
+  } catch (err) {
+    next(err);
+  }
+};
 
 export const findAll = async (req: Request, res: Response) => {
   const flashCards = await flashService.findAll();

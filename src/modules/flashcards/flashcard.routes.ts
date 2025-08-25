@@ -3,7 +3,6 @@ import * as flashController from "./flashcard.controller";
 
 const router = Router();
 
-
 /**
  * @swagger
  * components:
@@ -34,7 +33,7 @@ const router = Router();
  * /flashcards:
  *   get:
  *     summary: Lista todos os flashcards
- *     tags: [Flashcards]
+ *     tags: [FlashCards]
  *     responses:
  *       200:
  *         description: Lista de flashcards
@@ -46,7 +45,7 @@ router.get("/", flashController.findAll);
  * /flashcards:
  *   post:
  *     summary: Cria um novo flashcard
- *     tags: [Flashcards]
+ *     tags: [FlashCards]
  *     requestBody:
  *       required: true
  *       content:
@@ -131,5 +130,36 @@ router.put("/:id", flashController.update);
  *         description: Flashcard não encontrado
  */
 router.delete("/:id", flashController.deleteById);
+
+/**
+ * @swagger
+ * /flashcards/generate:
+ *   post:
+ *     summary: Gera um flashcard a partir de um texto usando IA
+ *     tags: [FlashCards]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               content:
+ *                 type: string
+ *                 description: Texto do qual a IA vai gerar o flashcard
+ *                 example: "Explique o que é Node.js e como funciona."
+ *     responses:
+ *       201:
+ *         description: Flashcard gerado e salvo
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/FlashCard'
+ *       400:
+ *         description: Texto inválido ou faltando
+ *       500:
+ *         description: Erro interno do servidor
+ */
+router.post("/generate", flashController.generate);
 
 export default router;

@@ -7,6 +7,7 @@ export const errorHandler = (
   res: Response,
   _next: NextFunction
 ) => {
+    console.log("error: ",err)
   if (err.errors) {
     return res.status(400).json({
       status: "error",
